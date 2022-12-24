@@ -36,12 +36,12 @@ namespace BloogBot
                 db.Open();
 
                 // first insert
-                var sql = $"INSERT INTO Npcs VALUES ('{encodedName}', {Convert.ToInt32(isInnkeeper)}, {Convert.ToInt32(sellsAmmo)}, {Convert.ToInt32(repairs)}, {Convert.ToInt32(quest)}, {Convert.ToInt32(horde)}, {Convert.ToInt32(alliance)}, {positionX}, {positionY}, {positionZ}, '{encodedZone}');";
+                var sql = $"INSERT INTO Npcs VALUES (DEFAULT, '{encodedName}', {Convert.ToInt32(isInnkeeper)}, {Convert.ToInt32(sellsAmmo)}, {Convert.ToInt32(repairs)}, {Convert.ToInt32(quest)}, {Convert.ToInt32(horde)}, {Convert.ToInt32(alliance)}, {positionX}, {positionY}, {positionZ}, '{encodedZone}');";
                 var command = new MySqlCommand(sql, db);
                 command.ExecuteNonQuery();
 
                 // then retrieve it so we have the id
-                sql = $"SELECT TOP 1 * FROM Npcs WHERE Name = '{encodedName}';";
+                sql = $"SELECT * FROM Npcs WHERE Name = '{encodedName}' LIMIT 0, 1;";
                 command = new MySqlCommand(sql, db);
                 var reader = command.ExecuteReader();
                 reader.Read();
@@ -73,7 +73,7 @@ namespace BloogBot
             {
                 db.Open();
 
-                var sql = $"SELECT TOP 1 Id FROM Npcs WHERE Name = '{encodedName}';";
+                var sql = $"SELECT Id FROM Npcs WHERE Name = '{encodedName}' LIMIT 0, 1;";
                 var command = new MySqlCommand(sql, db);
                 var exists = command.ExecuteReader().HasRows;
 
@@ -89,7 +89,7 @@ namespace BloogBot
             {
                 db.Open();
 
-                var sql = $"SELECT TOP 1 Id FROM BlacklistedMobs WHERE Guid = '{guid}';";
+                var sql = $"SELECT Id FROM BlacklistedMobs WHERE Guid = '{guid}' LIMIT 0, 1;";
                 var command = new MySqlCommand(sql, db);
                 var exists = command.ExecuteReader().HasRows;
 
@@ -110,13 +110,13 @@ namespace BloogBot
                 db.Open();
 
                 // first insert
-                var sql = $"INSERT INTO TravelPaths VALUES ('{encodedName}', '{waypointsJson}');";
+                var sql = $"INSERT INTO travelpaths VALUES (DEFAULT, '{encodedName}', '{waypointsJson}');";
                 var command = new MySqlCommand(sql, db);
                 command.Prepare();
                 command.ExecuteNonQuery();
 
                 // then retrieve it so we have the id
-                sql = $"SELECT TOP 1 * FROM TravelPaths WHERE Name = '{encodedName}';";
+                sql = $"SELECT * FROM TravelPaths WHERE Name = '{encodedName}' LIMIT 0, 1;";
                 command = new MySqlCommand(sql, db);
                 var reader = command.ExecuteReader();
                 reader.Read();
@@ -139,14 +139,14 @@ namespace BloogBot
             {
                 db.Open();
 
-                var sql = "SELECT * FROM TravelPaths ORDER BY Name;";
+                var sql = "SELECT * FROM travelpaths ORDER BY name;";
                 var command = new MySqlCommand(sql, db);
                 var reader = command.ExecuteReader();
                 while (reader.Read())
                 {
-                    var id = Convert.ToInt32(reader["Id"]);
-                    var name = Convert.ToString(reader["Name"]);
-                    var waypointsJson = Convert.ToString(reader["Waypoints"]);
+                    var id = Convert.ToInt32(reader["id"]);
+                    var name = Convert.ToString(reader["name"]);
+                    var waypointsJson = Convert.ToString(reader["waypoints"]);
                     var waypoints = JsonConvert.DeserializeObject<Position[]>(waypointsJson);
                     travelPaths.Add(new TravelPath(id, name, waypoints));
                 }
@@ -166,7 +166,7 @@ namespace BloogBot
             {
                 db.Open();
 
-                var sql = $"SELECT TOP 1 Id FROM TravelPaths WHERE Name = '{encodedName}'";
+                var sql = $"SELECT id FROM travelpaths WHERE name = '{encodedName}' LIMIT 0, 1";
                 var command = new MySqlCommand(sql, db);
                 var exists = command.ExecuteReader().HasRows;
 
@@ -199,12 +199,12 @@ namespace BloogBot
                 db.Open();
 
                 // first insert
-                var sql = $"INSERT INTO Hotspots VALUES ('{encodedZone}', '{encodedDescription}', '{encodedFaction}', '{waypointsJson}', {innkeeper?.Id.ToString() ?? "NULL"}, {repairVendor?.Id.ToString() ?? "NULL"}, {ammoVendor?.Id.ToString() ?? "NULL"}, {minLevel}, {travelPath?.Id.ToString() ?? "NULL"}, {Convert.ToInt32(safeForGrinding)});";
+                var sql = $"INSERT INTO Hotspots VALUES (DEFAULT, '{encodedZone}', '{encodedDescription}', '{encodedFaction}', '{waypointsJson}', {innkeeper?.Id.ToString() ?? "NULL"}, {repairVendor?.Id.ToString() ?? "NULL"}, {ammoVendor?.Id.ToString() ?? "NULL"}, {minLevel}, {travelPath?.Id.ToString() ?? "NULL"}, {Convert.ToInt32(safeForGrinding)});";
                 var command = new MySqlCommand(sql, db);
                 command.ExecuteNonQuery();
 
                 // then retrieve it so we have the id
-                sql = $"SELECT TOP 1 * FROM Hotspots WHERE Description = '{encodedDescription}';";
+                sql = $"SELECT * FROM Hotspots WHERE Description = '{encodedDescription}' LIMIT 0, 1;";
                 command = new MySqlCommand(sql, db);
                 var reader = command.ExecuteReader();
                 reader.Read();
@@ -354,7 +354,7 @@ namespace BloogBot
             {
                 db.Open();
 
-                var sql = $"INSERT INTO BlacklistedMobs VALUES ('{guid}');";
+                var sql = $"INSERT INTO BlacklistedMobs VALUES (DEFAULT, '{guid}');";
                 var command = new MySqlCommand(sql, db);
                 command.ExecuteNonQuery();
 
@@ -496,7 +496,7 @@ namespace BloogBot
 
                 db.Open();
 
-                var sql1 = "SELECT TOP 1 Id FROM Commands WHERE Command = '!report' ORDER BY Id DESC";
+                var sql1 = "SELECT id FROM commands WHERE command = '!report' ORDER BY id DESC LIMIT 0, 1;";
                 var command1 = new MySqlCommand(sql1, db);
                 var reader1 = command1.ExecuteReader();
 
@@ -536,7 +536,7 @@ namespace BloogBot
             {
                 db.Open();
 
-                var sql = $"INSERT INTO ReportSignatures VALUES ('{playerName}', {commandId})";
+                var sql = $"INSERT INTO ReportSignatures VALUES (DEFAULT, '{playerName}', {commandId})";
                 var command = new MySqlCommand(sql, db);
                 command.ExecuteNonQuery();
 

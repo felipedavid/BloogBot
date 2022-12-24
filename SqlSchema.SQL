@@ -1,17 +1,17 @@
 CREATE TABLE blacklistedmobs (
-	id int primary key,
+	id int not null auto_increment primary key,
 	guid text not null
 );
 
 CREATE TABLE commands (
-	id int not null primary key,
+	id int not null auto_increment primary key,
 	command text not null,
 	player text not null,
 	args text not null
 );
 
 CREATE TABLE hotspots (
-	id int not null primary key,
+	id int not null auto_increment primary key,
 	zone text not null,
 	description text not null,
 	faction text not null,
@@ -25,7 +25,7 @@ CREATE TABLE hotspots (
 );
 
 CREATE TABLE hotspotsv2 (
-	id int primary key,
+	id int not null auto_increment primary key,
 	polygon text not null,
 	zone text not null,
 	description text not null,
@@ -36,7 +36,8 @@ CREATE TABLE hotspotsv2 (
 );
 
 CREATE TABLE kills (
-	playerlevel int primary key,
+	id int not null auto_increment primary key,
+	playerlevel int,
 	playername text not null,
 	playerclass text not null,
 	enemyname text not null,
@@ -46,7 +47,7 @@ CREATE TABLE kills (
 );
 
 CREATE TABLE npcs (
-	id int primary key,
+	id int not null auto_increment primary key,
 	name text not null,
 	isinnkeeper int not null,
 	sellsammo int not null,
@@ -61,18 +62,18 @@ CREATE TABLE npcs (
 );
 
 CREATE TABLE questcompletions (
-	id int primary key,
+	id int not null auto_increment primary key,
 	playerguid text not null,
 	questid int not null
 );
 
 CREATE TABLE questhubs (
-	id int primary key,
+	id int not null auto_increment primary key,
 	name text not null
 );
 
 CREATE TABLE questobjectives (
-	id int primary key,
+	id int not null auto_increment primary key,
 	type text not null,
 	name text not null,
 	source text not null,
@@ -82,13 +83,13 @@ CREATE TABLE questobjectives (
 );
 
 CREATE TABLE questprerequisites (
-	id int primary key,
+	id int not null auto_increment primary key,
 	parentid int not null,
 	childid int not null
 );
 
 CREATE TABLE quests (
-	id int primary key,
+	id int not null auto_increment primary key,
 	name text not null,
 	questhubid int not null,
 	hotspotid int,
@@ -100,13 +101,13 @@ CREATE TABLE quests (
 );
 
 CREATE TABLE reportsignatures (
-	id int primary key,
+	id int not null auto_increment primary key,
 	player text not null,
 	commandid int not null
 );
 
 create table towns (
-	id int not null,
+	id int not null auto_increment primary key,
 	innkeeperid int,
 	repairvendorid int,
 	ammovendorid int,
@@ -114,7 +115,7 @@ create table towns (
 );
 
 CREATE TABLE travelpaths (
-	id int not null,
+	id int not null auto_increment primary key,
 	name text not null,
 	waypoints text not null
 );
