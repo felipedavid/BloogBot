@@ -2,7 +2,7 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
+using MySql.Data.MySqlClient;
 
 namespace BloogBot
 {
@@ -31,18 +31,18 @@ namespace BloogBot
             var encodedName = Encode(name);
             var encodedZone = Encode(zone);
 
-            using (var db = new SqlConnection(connectionString))
+            using (var db = new MySqlConnection(connectionString))
             {
                 db.Open();
 
                 // first insert
                 var sql = $"INSERT INTO Npcs VALUES ('{encodedName}', {Convert.ToInt32(isInnkeeper)}, {Convert.ToInt32(sellsAmmo)}, {Convert.ToInt32(repairs)}, {Convert.ToInt32(quest)}, {Convert.ToInt32(horde)}, {Convert.ToInt32(alliance)}, {positionX}, {positionY}, {positionZ}, '{encodedZone}');";
-                var command = new SqlCommand(sql, db);
+                var command = new MySqlCommand(sql, db);
                 command.ExecuteNonQuery();
 
                 // then retrieve it so we have the id
                 sql = $"SELECT TOP 1 * FROM Npcs WHERE Name = '{encodedName}';";
-                command = new SqlCommand(sql, db);
+                command = new MySqlCommand(sql, db);
                 var reader = command.ExecuteReader();
                 reader.Read();
 
@@ -69,12 +69,12 @@ namespace BloogBot
         {
             var encodedName = Encode(name);
 
-            using (var db = new SqlConnection(connectionString))
+            using (var db = new MySqlConnection(connectionString))
             {
                 db.Open();
 
                 var sql = $"SELECT TOP 1 Id FROM Npcs WHERE Name = '{encodedName}';";
-                var command = new SqlCommand(sql, db);
+                var command = new MySqlCommand(sql, db);
                 var exists = command.ExecuteReader().HasRows;
 
                 db.Close();
@@ -85,12 +85,12 @@ namespace BloogBot
 
         static public bool BlacklistedMobExists(ulong guid)
         {
-            using (var db = new SqlConnection(connectionString))
+            using (var db = new MySqlConnection(connectionString))
             {
                 db.Open();
 
                 var sql = $"SELECT TOP 1 Id FROM BlacklistedMobs WHERE Guid = '{guid}';";
-                var command = new SqlCommand(sql, db);
+                var command = new MySqlCommand(sql, db);
                 var exists = command.ExecuteReader().HasRows;
 
                 db.Close();
@@ -105,19 +105,19 @@ namespace BloogBot
 
             var waypointsJson = JsonConvert.SerializeObject(waypoints);
 
-            using (var db = new SqlConnection(connectionString))
+            using (var db = new MySqlConnection(connectionString))
             {
                 db.Open();
 
                 // first insert
                 var sql = $"INSERT INTO TravelPaths VALUES ('{encodedName}', '{waypointsJson}');";
-                var command = new SqlCommand(sql, db);
+                var command = new MySqlCommand(sql, db);
                 command.Prepare();
                 command.ExecuteNonQuery();
 
                 // then retrieve it so we have the id
                 sql = $"SELECT TOP 1 * FROM TravelPaths WHERE Name = '{encodedName}';";
-                command = new SqlCommand(sql, db);
+                command = new MySqlCommand(sql, db);
                 var reader = command.ExecuteReader();
                 reader.Read();
 
@@ -135,12 +135,12 @@ namespace BloogBot
         {
             var travelPaths = new List<TravelPath>();
 
-            using (var db = new SqlConnection(connectionString))
+            using (var db = new MySqlConnection(connectionString))
             {
                 db.Open();
 
                 var sql = "SELECT * FROM TravelPaths ORDER BY Name;";
-                var command = new SqlCommand(sql, db);
+                var command = new MySqlCommand(sql, db);
                 var reader = command.ExecuteReader();
                 while (reader.Read())
                 {
@@ -162,12 +162,12 @@ namespace BloogBot
         {
             var encodedName = Encode(name);
 
-            using (var db = new SqlConnection(connectionString))
+            using (var db = new MySqlConnection(connectionString))
             {
                 db.Open();
 
                 var sql = $"SELECT TOP 1 Id FROM TravelPaths WHERE Name = '{encodedName}'";
-                var command = new SqlCommand(sql, db);
+                var command = new MySqlCommand(sql, db);
                 var exists = command.ExecuteReader().HasRows;
 
                 db.Close();
@@ -194,18 +194,18 @@ namespace BloogBot
             
             var waypointsJson = JsonConvert.SerializeObject(waypoints);
 
-            using (var db = new SqlConnection(connectionString))
+            using (var db = new MySqlConnection(connectionString))
             {
                 db.Open();
 
                 // first insert
                 var sql = $"INSERT INTO Hotspots VALUES ('{encodedZone}', '{encodedDescription}', '{encodedFaction}', '{waypointsJson}', {innkeeper?.Id.ToString() ?? "NULL"}, {repairVendor?.Id.ToString() ?? "NULL"}, {ammoVendor?.Id.ToString() ?? "NULL"}, {minLevel}, {travelPath?.Id.ToString() ?? "NULL"}, {Convert.ToInt32(safeForGrinding)});";
-                var command = new SqlCommand(sql, db);
+                var command = new MySqlCommand(sql, db);
                 command.ExecuteNonQuery();
 
                 // then retrieve it so we have the id
                 sql = $"SELECT TOP 1 * FROM Hotspots WHERE Description = '{encodedDescription}';";
-                command = new SqlCommand(sql, db);
+                command = new MySqlCommand(sql, db);
                 var reader = command.ExecuteReader();
                 reader.Read();
 
@@ -234,7 +234,7 @@ namespace BloogBot
         {
             var hotspots = new List<Hotspot>();
 
-            using (var db = new SqlConnection(connectionString))
+            using (var db = new MySqlConnection(connectionString))
             {
                 db.Open();
 
@@ -251,7 +251,7 @@ namespace BloogBot
 	                    LEFT JOIN Npcs r ON h.RepairVendorId = r.Id
                         LEFT JOIN TravelPaths t ON h.TravelPathId = t.Id";
 
-                var command = new SqlCommand(sql, db);
+                var command = new MySqlCommand(sql, db);
                 var reader = command.ExecuteReader();
                 while (reader.Read())
                 {
@@ -301,7 +301,7 @@ namespace BloogBot
             }
         }
 
-        static public Npc ParseNpcFromQueryResult(SqlDataReader reader, int id, string prefix)
+        static public Npc ParseNpcFromQueryResult(MySqlDataReader reader, int id, string prefix)
         {
             var positionX = (float)Convert.ToDecimal(reader[$"{prefix}PositionX"]);
             var positionY = (float)Convert.ToDecimal(reader[$"{prefix}PositionY"]);
@@ -320,7 +320,7 @@ namespace BloogBot
                 Convert.ToString(reader[$"{prefix}Zone"]));
         }
 
-        static public Npc BuildStartNpc(string prefix, SqlDataReader reader)
+        static public Npc BuildStartNpc(string prefix, MySqlDataReader reader)
         {
             var positionX = (float)Convert.ToDecimal(reader[$"{prefix}NpcPositionX"]);
             var positionY = (float)Convert.ToDecimal(reader[$"{prefix}NpcPositionY"]);
@@ -339,7 +339,7 @@ namespace BloogBot
                 Convert.ToString(reader[$"{prefix}NpcZone"]));
         }
 
-        static public TravelPath ParseTravelPathFromQueryResult(SqlDataReader reader, int id, string prefix)
+        static public TravelPath ParseTravelPathFromQueryResult(MySqlDataReader reader, int id, string prefix)
         {
             var name = Convert.ToString(reader[$"{prefix}Name"]);
             var waypointsJson = Convert.ToString(reader[$"{prefix}Waypoints"]);
@@ -350,12 +350,12 @@ namespace BloogBot
 
         static public void AddBlacklistedMob(ulong guid)
         {
-            using (var db = new SqlConnection(connectionString))
+            using (var db = new MySqlConnection(connectionString))
             {
                 db.Open();
 
                 var sql = $"INSERT INTO BlacklistedMobs VALUES ('{guid}');";
-                var command = new SqlCommand(sql, db);
+                var command = new MySqlCommand(sql, db);
                 command.ExecuteNonQuery();
 
                 db.Close();
@@ -364,12 +364,12 @@ namespace BloogBot
 
         static public void RemoveBlacklistedMob(ulong guid)
         {
-            using (var db = new SqlConnection(connectionString))
+            using (var db = new MySqlConnection(connectionString))
             {
                 db.Open();
 
                 var sql = $"DELETE FROM BlacklistedMobs WHERE Guid = '{guid}';";
-                var command = new SqlCommand(sql, db);
+                var command = new MySqlCommand(sql, db);
                 command.ExecuteNonQuery();
 
                 db.Close();
@@ -380,12 +380,12 @@ namespace BloogBot
         {
             IList<ulong> mobIds = new List<ulong>();
 
-            using (var db = new SqlConnection(connectionString))
+            using (var db = new MySqlConnection(connectionString))
             {
                 db.Open();
 
                 var sql = $"SELECT Guid FROM BlacklistedMobs;";
-                var command = new SqlCommand(sql, db);
+                var command = new MySqlCommand(sql, db);
                 var reader = command.ExecuteReader();
                 while (reader.Read())
                     mobIds.Add(Convert.ToUInt64(reader["Guid"]));
@@ -401,12 +401,12 @@ namespace BloogBot
         {
             IList<Npc> npcs = new List<Npc>();
 
-            using (var db = new SqlConnection(connectionString))
+            using (var db = new MySqlConnection(connectionString))
             {
                 db.Open();
 
                 var sql = $"SELECT * FROM Npcs;";
-                var command = new SqlCommand(sql, db);
+                var command = new MySqlCommand(sql, db);
                 var reader = command.ExecuteReader();
                 while (reader.Read())
                 {
@@ -437,12 +437,12 @@ namespace BloogBot
         {
             IList<CommandModel> commands = new List<CommandModel>();
 
-            using (var db = new SqlConnection(connectionString))
+            using (var db = new MySqlConnection(connectionString))
             {
                 db.Open();
 
                 var sql = $"SELECT * FROM Commands WHERE Player = '{playerName}'";
-                var command = new SqlCommand(sql, db);
+                var command = new MySqlCommand(sql, db);
                 var reader = command.ExecuteReader();
                 while (reader.Read())
                 {
@@ -462,12 +462,12 @@ namespace BloogBot
 
         static public void DeleteCommand(int id)
         {
-            using (var db = new SqlConnection(connectionString))
+            using (var db = new MySqlConnection(connectionString))
             {
                 db.Open();
 
                 var sql = $"DELETE FROM Commands WHERE Id = {id}";
-                var command = new SqlCommand(sql, db);
+                var command = new MySqlCommand(sql, db);
                 command.ExecuteNonQuery();
 
                 db.Close();
@@ -476,12 +476,12 @@ namespace BloogBot
 
         static public void DeleteCommandsForPlayer(string player)
         {
-            using (var db = new SqlConnection(connectionString))
+            using (var db = new MySqlConnection(connectionString))
             {
                 db.Open();
 
                 var sql = $"DELETE FROM Commands WHERE Player = '{player}'";
-                var command = new SqlCommand(sql, db);
+                var command = new MySqlCommand(sql, db);
                 command.ExecuteNonQuery();
 
                 db.Close();
@@ -490,14 +490,14 @@ namespace BloogBot
 
         static public ReportSummary GetLatestReportSignatures()
         {
-            using (var db = new SqlConnection(connectionString))
+            using (var db = new MySqlConnection(connectionString))
             {
                 var reportSignatures = new List<ReportSignature>();
 
                 db.Open();
 
                 var sql1 = "SELECT TOP 1 Id FROM Commands WHERE Command = '!report' ORDER BY Id DESC";
-                var command1 = new SqlCommand(sql1, db);
+                var command1 = new MySqlCommand(sql1, db);
                 var reader1 = command1.ExecuteReader();
 
                 var commandId = -1;
@@ -510,7 +510,7 @@ namespace BloogBot
                 if (commandId != -1)
                 {
                     var sql2 = $"SELECT * FROM ReportSignatures s WHERE s.CommandId = {commandId}";
-                    var command2 = new SqlCommand(sql2, db);
+                    var command2 = new MySqlCommand(sql2, db);
                     var reader2 = command2.ExecuteReader();
 
                     while (reader2.Read())
@@ -532,12 +532,12 @@ namespace BloogBot
 
         static public void AddReportSignature(string playerName, int commandId)
         {
-            using (var db = new SqlConnection(connectionString))
+            using (var db = new MySqlConnection(connectionString))
             {
                 db.Open();
 
                 var sql = $"INSERT INTO ReportSignatures VALUES ('{playerName}', {commandId})";
-                var command = new SqlCommand(sql, db);
+                var command = new MySqlCommand(sql, db);
                 command.ExecuteNonQuery();
 
                 db.Close();

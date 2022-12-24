@@ -1,5 +1,5 @@
 {
-  "DatabasePath": "Server=tcp:bloog-bot.database.windows.net,1433;Initial Catalog=BloogBot;Persist Security Info=False;User ID=dkestell;Password=<>;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;",
+  "DatabasePath": "Server=127.0.0.1;Port=3307;Database=bloog_bot;Uid=root;Pwd=root;",
   "DiscordBotToken": "<>",
   "DiscordGuildId": "303695206333546496",
   "DiscordRoleId": "707118407157284936",
